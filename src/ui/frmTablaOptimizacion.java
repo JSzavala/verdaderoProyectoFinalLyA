@@ -7,6 +7,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class frmTablaOptimizacion {
     private JTable tblCuadruplos;
@@ -131,9 +132,9 @@ public class frmTablaOptimizacion {
         return btnOptimizados;
     }
 
-    public void agregarFila(String cuadruplo, String optimizacion, String linea, String resultado) {
+    public void agregarFila(FilaTabla filaTabla) {
         DefaultTableModel model = (DefaultTableModel) tblCuadruplos.getModel();
-        model.addRow(new Object[]{cuadruplo, optimizacion, linea, resultado});
+        model.addRow(filaTabla.getObjectArray());
     }
 
     public void limpiarTabla() {
@@ -141,21 +142,21 @@ public class frmTablaOptimizacion {
         model.setRowCount(0);
     }
 
-    public void cargarDatos(Object[][] datos) {
+    public void cargarDatos(ArrayList<FilaTabla> datos) {
         DefaultTableModel model = (DefaultTableModel) tblCuadruplos.getModel();
         model.setRowCount(0);
-        for (Object[] fila : datos) {
-            model.addRow(fila);
+        for (FilaTabla fila : datos) {
+            model.addRow(fila.getObjectArray());
         }
     }
 
-    public void actualizarFila(int indice, String cuadruplo, String optimizacion, String linea, String resultado) {
+    public void actualizarFila(int indice, FilaTabla filaTabla) {
         DefaultTableModel model = (DefaultTableModel) tblCuadruplos.getModel();
         if (indice >= 0 && indice < model.getRowCount()) {
-            model.setValueAt(cuadruplo, indice, 0);
-            model.setValueAt(optimizacion, indice, 1);
-            model.setValueAt(linea, indice, 2);
-            model.setValueAt(resultado, indice, 3);
+            Object[] datos = filaTabla.getObjectArray();
+            for (int i = 0; i < datos.length; i++) {
+                model.setValueAt(datos[i], indice, i);
+            }
         }
     }
 

@@ -1,6 +1,12 @@
+import modelos.Cuadruplo;
+import modelos.FilaTabla;
+import servicios.Lector;
+import servicios.Optimizador;
 import ui.frmTablaOptimizacion;
 
 import javax.swing.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
@@ -10,19 +16,20 @@ public class Main {
         frame.setLocationRelativeTo(null);
 
         frmTablaOptimizacion form = new frmTablaOptimizacion();
+        form.getBtnIniciar().addActionListener(e -> cargarYOptimizarCuadruplos(form));
+        SwingUtilities.invokeLater(() -> cargarYOptimizarCuadruplos(form));
 
         frame.add(form.getMainPanel());
-
-        // Display the frame
         frame.setVisible(true);
-        /*Servicios.Lector l = new Servicios.Lector();
-        Servicios.Validador v = new Servicios.Validador();
-        Servicios.Optimizador o = new Servicios.Optimizador();
-        ArrayList<String> cuadruplos = l.lineas("src/archivo.txt");
-        if(v.validar(cuadruplos)){
+    }
 
-        }
-        else{
-        }*/
+    private static void cargarYOptimizarCuadruplos(frmTablaOptimizacion form) {
+        Lector lector = new Lector();
+        ArrayList<Cuadruplo> cuadruplos= lector.ExtraerCuadruplos("src/recursos/cuadruplos.txt");
+        form.limpiarTabla();
+
+        Optimizador optimizador = new Optimizador(cuadruplos);
+        ArrayList<FilaTabla> cuadruplosOptimizados = optimizador.getCuadruplosOptimizados();
+        form.cargarDatos(cuadruplosOptimizados);
     }
 }
