@@ -4,10 +4,10 @@ import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
-        JFrame frame = new JFrame("JTable Example");
+        JFrame frame = new JFrame("Optimización de Cuádruplos - Roberto,Samuel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 400);
-        frame.setLocationRelativeTo(null); // Center on screen
+        frame.setSize(800, 800);
+        frame.setLocationRelativeTo(null);
 
         frmTablaOptimizacion form = new frmTablaOptimizacion();
 
