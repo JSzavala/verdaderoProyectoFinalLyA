@@ -1,3 +1,7 @@
+package servicios;
+
+import modelos.Cuadruplo;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,7 +32,7 @@ public class Lector {
                     .collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException e) {
             System.err.println("Error en la lectura del archivo: " + e.getMessage());
-            return null;
+            return new ArrayList<Cuadruplo>();
         }
     }
 }

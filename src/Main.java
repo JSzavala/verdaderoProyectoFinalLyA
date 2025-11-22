@@ -1,5 +1,7 @@
+import ui.frmTablaOptimizacion;
+
 import javax.swing.*;
-import java.util.ArrayList;
+
 public class Main {
     public static void main(String[] args) {
         JFrame frame = new JFrame("JTable Example");
@@ -13,9 +15,9 @@ public class Main {
 
         // Display the frame
         frame.setVisible(true);
-        /*Lector l = new Lector();
-        Validador v = new Validador();
-        Optimizador o = new Optimizador();
+        /*Servicios.Lector l = new Servicios.Lector();
+        Servicios.Validador v = new Servicios.Validador();
+        Servicios.Optimizador o = new Servicios.Optimizador();
         ArrayList<String> cuadruplos = l.lineas("src/archivo.txt");
         if(v.validar(cuadruplos)){
 

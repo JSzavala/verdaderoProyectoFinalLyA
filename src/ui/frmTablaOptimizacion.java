@@ -1,3 +1,5 @@
+package ui;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
@@ -8,7 +10,7 @@ public class frmTablaOptimizacion {
     private JButton btnOptimizados;
 
     private void createUIComponents() {
-        String[] columnNames = {"Cuadruplo", "Optimizacion", "Columna", "Resultado"};
+        String[] columnNames = {"Modelos.Cuadruplo", "Optimizacion", "Columna", "Resultado"};
         Object[][] data = {
                 {"Data 1", "Short", "Short", "Data 4"},
                 {"Data 1", "Short", "Short", "Data 4"},
