@@ -4,10 +4,26 @@ import javax.swing.table.DefaultTableModel;
 public class frmTablaOptimizacion {
     private JTable tblCuadruplos;
     private JPanel panel1;
+    private JButton btnIniciar;
+    private JButton btnOptimizados;
 
     private void createUIComponents() {
-        String[] columnNames = {"Column 1", "Column 2", "Column 3", "Column 4"};
+        String[] columnNames = {"Cuadruplo", "Optimizacion", "Columna", "Resultado"};
         Object[][] data = {
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
+                {"Data 1", "Short", "Short", "Data 4"},
                 {"Data 1", "Short", "Short", "Data 4"},
                 {"Data 1", "Short", "Short", "Data 4"}
         };
