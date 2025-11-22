@@ -1,5 +1,7 @@
 package ui;
 
+import modelos.FilaTabla;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -161,14 +163,14 @@ public class frmTablaOptimizacion {
         return tblCuadruplos.getModel().getRowCount();
     }
 
-    public Object[] obtenerFila(int indice) {
+    public FilaTabla obtenerFila(int indice) {
         DefaultTableModel model = (DefaultTableModel) tblCuadruplos.getModel();
         if (indice >= 0 && indice < model.getRowCount()) {
             Object[] fila = new Object[4];
             for (int i = 0; i < 4; i++) {
                 fila[i] = model.getValueAt(indice, i);
             }
-            return fila;
+            return new FilaTabla(fila);
         }
         return null;
     }
