@@ -7,12 +7,14 @@ public class FilaTabla {
     private String optimizacion;
     private String lineaAfectada;
     private Cuadruplo resultado;
+    private boolean esValido;
 
     public FilaTabla(Cuadruplo cuadruplo, String optimizacion, String lineaAfectada, Cuadruplo resultado) {
         this.cuadruplo = cuadruplo;
         this.optimizacion = optimizacion;
         this.lineaAfectada = lineaAfectada;
         this.resultado = resultado;
+        esValido = true;
     }
 
     public FilaTabla(Object[] rowData) {
@@ -24,6 +26,7 @@ public class FilaTabla {
         } catch (Exception e) {
             throw new IllegalArgumentException("Error al crear FilaTabla desde rowData: " + e.getMessage(), e);
         }
+        esValido = true;
     }
 
     public Object[] getObjectArray() {

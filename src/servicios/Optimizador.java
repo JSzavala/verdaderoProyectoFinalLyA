@@ -3,49 +3,218 @@ package servicios;
 import modelos.Cuadruplo;
 import modelos.FilaTabla;
 
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Optimizador {
     public ArrayList<Cuadruplo> cuadruplos;
     public ArrayList<Cuadruplo> optimizados;
-    Set<Cuadruplo> repetidos;
+    public ArrayList<String> optimizaciones;
+    public ArrayList<String> lineasAfectadas;
+    private Validador validador;
 
-    public Optimizador(ArrayList<Cuadruplo> cuadruplos){
+    public Optimizador(ArrayList<Cuadruplo> cuadruplos) {
+        final int len = cuadruplos.size();
+
         this.cuadruplos = cuadruplos;
+        this.optimizados = new ArrayList<>(cuadruplos);
+        this.optimizaciones = new ArrayList<String>(Collections.nCopies(len, ""));
+        this.lineasAfectadas = new ArrayList<String>(Collections.nCopies(len, ""));
+        validador = new Validador();
     }
-    private boolean isNumeric(String s){
-        if(s.length()!=1)return false;
-        return (s.charAt(0)>='0'&&s.charAt(0)<='9');
-    }
-    private String tipo (Cuadruplo c){
-        if(repetidos.contains(c))return "RS";
-        if(c.getOperando1().equals(c.getResultado())||c.getOperando2().equals(c.getResultado()))return "SE";
-        if(isNumeric(c.getOperando2())&&isNumeric(c.getOperando1()))return "FO";
-        return "X";
-    }
-    private void Optimizar(){
-        for(Cuadruplo c: cuadruplos){
-            if(!tipo(c).equals("X")){
-                //TODO: añadir el detectar si un es codigo muerto o si es propagacion de constantes
-            }
-            repetidos.add(c);
-        }
+
+
+    public void Optimizar() {
+        boolean cambios = false;
+
+        // Se elimina el codigo muerto antes de iniciar otras optimizaciones
+        eliminarCodigoMuerto();
+
+        do {
+            cambios = false;
+            cambios |= aplicarPropagacionConstantes();
+            // cambios |= aplicarReduccionSubexpresiones();
+            //cambios |= aplicarSimplificacionExpresiones();
+            // cambios |= aplicarFolding();
+        } while (cambios); // Repetir hasta que no haya mas cambios
+
         /*
         SE: simplificacion de expresiones
-        FO: Folding
         PC: Propagacion de constantes
+        FO: Folding
         RS: Reduccion de subexpresiones
         CM: Codigo Muerto
         */
-
     }
 
-    public ArrayList<FilaTabla> getCuadruplosOptimizados(){
-        return cuadruplos.stream().map(cuadruplo ->{
-            return new FilaTabla(cuadruplo, "",  "", cuadruplo);
+    private boolean aplicarFolding() {
+        return false;
+    }
+
+    private boolean aplicarPropagacionConstantes() {
+        boolean cambio = false;
+
+        for (int i = 0; i < optimizados.size(); i++) {
+            var cuadruploi = optimizados.get(i);
+
+            if (!cuadruploi.getEsValido()) continue;
+            String valorAsignado = cuadruploi.getOperando2();
+
+            if (cuadruploi.getOperador().equals("=") && validador.esConstante(valorAsignado)) {
+
+
+                String patron = "[" + cuadruploi.getNumero() + "]";
+                StringBuilder lineasAfectadasStr = new StringBuilder();
+
+                int pos = i + 1;
+                while ((pos = identificarSiguienteCuadruploAfectado(pos, cuadruploi.getNumero())) != -1) {
+                    Cuadruplo cuad = optimizados.get(pos);
+
+                    cuad.setOperando1(cuad.getOperando1().replace(patron, valorAsignado));
+                    cuad.setOperando2(cuad.getOperando2().replace(patron, valorAsignado));
+
+                    if (lineasAfectadasStr.length() > 0) {
+                        lineasAfectadasStr.append(", ");
+                    }
+
+                    lineasAfectadasStr.append(cuad.getNumero());
+
+                    pos++; // Buscar desde el siguiente
+                    cambio = true;
+                }
+
+                if (lineasAfectadasStr.length() > 0) {
+                    optimizaciones.set(i, "PC");
+                    lineasAfectadas.set(i, lineasAfectadasStr.toString());
+                }
+
+            }
+        }
+        return cambio;
+    }
+
+    private boolean aplicarReduccionSubexpresiones() {
+        boolean cambio = false;
+
+        for (int i = 0; i < optimizados.size(); i++) {
+            Cuadruplo cuadi = optimizados.get(i);
+
+            if (!validador.esOperacionBinaria(cuadi.getOperador())) {
+                continue;
+            }
+
+            for (int j = i + 1; j < optimizados.size(); j++) {
+                Cuadruplo cuadj = optimizados.get(j);
+
+                if (validador.sonExpresionesIguales(cuadi, cuadj)) {
+                    optimizaciones.set(j, "RS");
+
+                    // Reemplazar con referencia al resultado anterior
+                    cuadj.setOperador("");
+                    cuadj.setOperando1("");
+                    cuadj.setOperando2("");
+                    cuadj.setRemplazadoCon("[" + cuadi.getNumero() + "]");
+
+                    lineasAfectadas.set(j, String.valueOf(cuadi.getNumero()));
+                    cambio = true;
+                }
+            }
+
+        }
+
+        return cambio;
+    }
+
+    private boolean aplicarSimplificacionExpresiones() {
+        return false;
+    }
+
+    private void eliminarCodigoMuerto() {
+        Set<Integer> cuadruplosVivos = new HashSet<>();
+        Queue<Integer> cola = new LinkedList<>();
+
+        for (int i = optimizados.size() - 1; i >= 0; i--) {
+            Cuadruplo cuad = optimizados.get(i);
+
+            if (validador.esOperacionCritica(cuad.getOperador())) {
+                cuadruplosVivos.add(i);
+                cola.add(i);
+            }
+        }
+
+        while (!cola.isEmpty()) {
+            int idx = cola.poll();
+            Cuadruplo cuad = optimizados.get(idx);
+
+            List<Integer> referencias = validador.extraerReferencias(cuad);
+            for (int numCuadruplo : referencias) {
+                int indice = buscarIndicePorNumero(numCuadruplo);
+                if (indice != -1 && !cuadruplosVivos.contains(indice)) {
+                    cuadruplosVivos.add(indice);
+                    cola.add(indice);
+                }
+            }
+
+            List<String> variables = validador.extraerVariables(cuad);
+            for (String variable : variables) {
+                int indice = buscarUltimaAsignacion(variable, idx);
+                if (indice != -1 && !cuadruplosVivos.contains(indice)) {
+                    cuadruplosVivos.add(indice);
+                    cola.add(indice);
+                }
+            }
+
+        }
+
+        for (int i = 0; i < optimizados.size(); i++) {
+            if (!cuadruplosVivos.contains(i)) {
+                Cuadruplo cuadi = optimizados.get(i);
+                optimizaciones.set(i, "CM");
+                cuadi.setRemplazadoCon("Eliminado");
+                cuadi.setEsValido(false);
+            }
+        }
+    }
+
+    private int buscarIndicePorNumero(int numero) {
+        for (int i = 0; i < optimizados.size(); i++) {
+            if (optimizados.get(i).getNumero() == numero) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int buscarUltimaAsignacion(String variable, int hastaIndice) {
+        for (int i = hastaIndice - 1; i >= 0; i--) {
+            Cuadruplo cuad = optimizados.get(i);
+            if (cuad.getOperando1().equals(variable) && cuad.getOperador().equals("=")) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int identificarSiguienteCuadruploAfectado(int i, int cuadruploNum) {
+        for (; i < optimizados.size(); i++) {
+            var cuadruploi = optimizados.get(i);
+
+            if (!cuadruploi.getEsValido()) {
+                continue;
+            }
+
+            if (validador.usaCuadruplo(cuadruploNum, cuadruploi)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public ArrayList<FilaTabla> getCuadruplosOptimizados() {
+        return IntStream.range(0, cuadruplos.size()).mapToObj(i -> {
+            return new FilaTabla(cuadruplos.get(i), optimizaciones.get(i), lineasAfectadas.get(i), optimizados.get(i));
         }).collect(Collectors.toCollection(ArrayList::new));
     }
 

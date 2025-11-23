@@ -8,6 +8,8 @@ public class Cuadruplo {
     private String operando1;
     private String operando2;
     private String resultado;
+    private String remplazadoCon;
+    private boolean esValido = true;
 
     public Cuadruplo(String operando1, String operador, String operando2, String resultado, int numero) {
         this.operador = operador;
@@ -15,6 +17,7 @@ public class Cuadruplo {
         this.operando2 = operando2;
         this.resultado = resultado;
         this.numero = numero;
+        remplazadoCon = "";
     }
 
     public Cuadruplo(String cuadruploStr) {
@@ -38,9 +41,37 @@ public class Cuadruplo {
         this.operando1 = partes[0].trim();
         this.operador = partes[1].trim();
         this.operando2 = partes[2].trim();
-        this.resultado = partes[3 ].trim();
+        this.resultado = partes[3].trim();
+        remplazadoCon = "";
     }
 
+    public void setRemplazadoCon(String remplazadoCon) {
+        this.remplazadoCon = remplazadoCon;
+    }
+
+    public void setEsValido(boolean esValido) {
+        this.esValido = esValido;
+    }
+
+    public boolean getEsValido() {
+        return esValido;
+    }
+
+    public void setOperador(String operador) {
+        this.operador = operador;
+    }
+
+    public void setOperando1(String operando1) {
+        this.operando1 = operando1;
+    }
+
+    public void setOperando2(String operando2) {
+        this.operando2 = operando2;
+    }
+
+    public String getRemplazadoCon() {
+        return remplazadoCon;
+    }
 
     public int getNumero() {
         return numero;
@@ -63,8 +94,10 @@ public class Cuadruplo {
     }
 
     @Override
-    public String toString(){
-        return numero + " " + "(" + operando1 +", "+operador+", "+operando2+", "+resultado + ")";
+    public String toString() {
+        String resultado = numero + " " + "(" + operando1 + ", " + operador + ", " + operando2 + ", " + this.resultado + ")";
+        if (getRemplazadoCon() != null && !getRemplazadoCon().isEmpty()) resultado = getRemplazadoCon() + " -> " + resultado;
+        return resultado;
     }
 
     public ArrayList<String> toArrayList() {
@@ -75,7 +108,6 @@ public class Cuadruplo {
         list.add(resultado);
         return list;
     }
-
 
 
 }
