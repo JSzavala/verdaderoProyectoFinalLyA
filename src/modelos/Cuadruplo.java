@@ -42,7 +42,25 @@ public class Cuadruplo {
     }
 
 
+    public int getNumero() {
+        return numero;
+    }
 
+    public String getOperador() {
+        return operador;
+    }
+
+    public String getOperando1() {
+        return operando1;
+    }
+
+    public String getOperando2() {
+        return operando2;
+    }
+
+    public String getResultado() {
+        return resultado;
+    }
 
     @Override
     public String toString(){
