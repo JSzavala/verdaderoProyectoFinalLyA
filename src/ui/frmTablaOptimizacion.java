@@ -1,5 +1,6 @@
 package ui;
 
+import modelos.Cuadruplo;
 import modelos.FilaTabla;
 
 import javax.swing.*;
@@ -142,9 +143,14 @@ public class frmTablaOptimizacion {
         model.setRowCount(0);
     }
 
-    public void cargarDatos(ArrayList<FilaTabla> datos) {
+    public void cargarDatos(ArrayList<Cuadruplo> originales, ArrayList<FilaTabla> datos) {
         DefaultTableModel model = (DefaultTableModel) tblCuadruplos.getModel();
         model.setRowCount(0);
+        for(int i=0; i<datos.size(); i++){
+            FilaTabla aux = datos.get(i);
+            aux.setCuadruplo(originales.get(i));
+            datos.set(i,aux);
+        }
         for (FilaTabla fila : datos) {
             model.addRow(fila.getObjectArray());
         }

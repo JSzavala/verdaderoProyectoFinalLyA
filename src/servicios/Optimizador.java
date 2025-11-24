@@ -14,7 +14,7 @@ public class Optimizador {
     public ArrayList<String> optimizaciones;
     public ArrayList<String> lineasAfectadas;
     private Validador validador;
-
+    boolean primIte=true;
     public Optimizador(ArrayList<Cuadruplo> cuadruplos) {
         final int len = cuadruplos.size();
 
@@ -35,9 +35,10 @@ public class Optimizador {
         do {
             cambios = false;
             cambios |= aplicarPropagacionConstantes();
-            // cambios |= aplicarReduccionSubexpresiones();
-            //cambios |= aplicarSimplificacionExpresiones();
-            // cambios |= aplicarFolding();
+            //cambios |= aplicarReduccionSubexpresiones();
+            cambios |= aplicarSimplificacionExpresiones();
+            cambios |= aplicarFolding();
+            primIte=false;
         } while (cambios); // Repetir hasta que no haya mas cambios
 
         /*
@@ -48,9 +49,41 @@ public class Optimizador {
         CM: Codigo Muerto
         */
     }
-
     private boolean aplicarFolding() {
-        return false;
+        boolean cambio = false;
+
+        for (int i = 0; i < optimizados.size(); i++) {
+            var cuadruploi = optimizados.get(i);
+
+            if (!cuadruploi.getEsValido()) continue;
+
+            if(validador.esConstante(cuadruploi.getOperando1())&&validador.esConstante(cuadruploi.getOperando2())){
+                String resultado=cuadruploi.getResultado();
+                StringBuilder lineasAfectadasStr = new StringBuilder();
+
+                String patron = "[" + cuadruploi.getNumero() + "]";
+                int pos = i + 1;
+                while ((pos = identificarSiguienteCuadruploAfectado(pos, cuadruploi.getNumero())) != -1) {
+                    Cuadruplo cuad = optimizados.get(pos);
+
+                    cuad.setOperando1(cuad.getOperando1().replace(patron, resultado));
+                    cuad.setOperando2(cuad.getOperando2().replace(patron, resultado));
+                    if (lineasAfectadasStr.length() > 0) {
+                        lineasAfectadasStr.append(", ");
+                    }
+
+                    lineasAfectadasStr.append(cuad.getNumero());
+
+                    pos++; // Buscar desde el siguiente
+                    cambio = true;
+                }
+                if (lineasAfectadasStr.length() > 0) {
+                    optimizaciones.set(i, "FO"+(primIte?"":"D"));
+                    lineasAfectadas.set(i, lineasAfectadasStr.toString());
+                }
+            }
+        }
+        return cambio;
     }
 
     private boolean aplicarPropagacionConstantes() {
@@ -63,6 +96,78 @@ public class Optimizador {
             String valorAsignado = cuadruploi.getOperando2();
 
             if (cuadruploi.getOperador().equals("=") && validador.esConstante(valorAsignado)) {
+                String patron = "[" + cuadruploi.getNumero() + "]";
+                StringBuilder lineasAfectadasStr = new StringBuilder();
+
+                int pos = i + 1;
+                while ((pos = identificarSiguienteCuadruploAfectado(pos, cuadruploi.getNumero())) != -1) {
+                    Cuadruplo cuad = optimizados.get(pos);
+
+                    cuad.setOperando1(cuad.getOperando1().replace(patron, valorAsignado));
+                    cuad.setOperando2(cuad.getOperando2().replace(patron, valorAsignado));
+
+                    if (lineasAfectadasStr.length() > 0) {
+                        lineasAfectadasStr.append(", ");
+                    }
+
+                    lineasAfectadasStr.append(cuad.getNumero());
+
+                    pos++; // Buscar desde el siguiente
+                    cambio = true;
+                }
+
+                if (lineasAfectadasStr.length() > 0) {
+                    optimizaciones.set(i, "PC"+(primIte?"":"D"));
+                    lineasAfectadas.set(i, lineasAfectadasStr.toString());
+                }
+
+            }
+        }
+        return cambio;
+    }
+
+    private boolean aplicarReduccionSubexpresiones() {
+        boolean cambio = false;
+
+        for (int i = 0; i < optimizados.size(); i++) {
+            Cuadruplo cuadi = optimizados.get(i);
+
+            if (!validador.esOperacionBinaria(cuadi.getOperador())) {
+                continue;
+            }
+
+            for (int j = i + 1; j < optimizados.size(); j++) {
+                Cuadruplo cuadj = optimizados.get(j);
+
+                if (validador.sonExpresionesIguales(cuadi, cuadj)) {
+                    optimizaciones.set(j, "RS"+(primIte?"":"D"));
+
+                    // Reemplazar con referencia al resultado anterior
+                    cuadj.setOperador("");
+                    cuadj.setOperando1("");
+                    cuadj.setOperando2("");
+                    cuadj.setRemplazadoCon("[" + cuadi.getNumero() + "]");
+
+                    lineasAfectadas.set(j, String.valueOf(cuadi.getNumero()));
+                    cambio = true;
+                }
+            }
+
+        }
+
+        return cambio;
+    }
+
+    private boolean aplicarSimplificacionExpresiones() {
+        boolean cambio = false;
+
+        for (int i = 0; i < optimizados.size(); i++) {
+            var cuadruploi = optimizados.get(i);
+
+            if (!cuadruploi.getEsValido()) continue;
+            String valorAsignado = cuadruploi.getResultado();
+
+            if (validador.esAdicionACero(cuadruploi)|| validador.esVecesUno(cuadruploi)) {
 
 
                 String patron = "[" + cuadruploi.getNumero() + "]";
@@ -86,49 +191,13 @@ public class Optimizador {
                 }
 
                 if (lineasAfectadasStr.length() > 0) {
-                    optimizaciones.set(i, "PC");
+                    optimizaciones.set(i, "SE"+(primIte?"":"D"));
                     lineasAfectadas.set(i, lineasAfectadasStr.toString());
                 }
 
             }
         }
         return cambio;
-    }
-
-    private boolean aplicarReduccionSubexpresiones() {
-        boolean cambio = false;
-
-        for (int i = 0; i < optimizados.size(); i++) {
-            Cuadruplo cuadi = optimizados.get(i);
-
-            if (!validador.esOperacionBinaria(cuadi.getOperador())) {
-                continue;
-            }
-
-            for (int j = i + 1; j < optimizados.size(); j++) {
-                Cuadruplo cuadj = optimizados.get(j);
-
-                if (validador.sonExpresionesIguales(cuadi, cuadj)) {
-                    optimizaciones.set(j, "RS");
-
-                    // Reemplazar con referencia al resultado anterior
-                    cuadj.setOperador("");
-                    cuadj.setOperando1("");
-                    cuadj.setOperando2("");
-                    cuadj.setRemplazadoCon("[" + cuadi.getNumero() + "]");
-
-                    lineasAfectadas.set(j, String.valueOf(cuadi.getNumero()));
-                    cambio = true;
-                }
-            }
-
-        }
-
-        return cambio;
-    }
-
-    private boolean aplicarSimplificacionExpresiones() {
-        return false;
     }
 
     private void eliminarCodigoMuerto() {
@@ -165,7 +234,6 @@ public class Optimizador {
                     cola.add(indice);
                 }
             }
-
         }
 
         for (int i = 0; i < optimizados.size(); i++) {

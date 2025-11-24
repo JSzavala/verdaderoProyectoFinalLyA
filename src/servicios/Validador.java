@@ -14,7 +14,12 @@ public class Validador {
 
         return (esNumero || esCadena || esCaracter);
     }
-
+    public boolean esAdicionACero(Cuadruplo c){
+        return ((c.getOperando1().equals("0")||c.getOperando2().equals("0"))&&(c.getOperador().equals("+")||(c.getOperador().equals("-"))));
+    }
+    public boolean esVecesUno(Cuadruplo c){
+        return ((c.getOperando1().equals("1")||c.getOperando2().equals("1"))&&(c.getOperador().equals("*")||(c.getOperador().equals("/"))));
+    }
     public boolean usaCuadruplo(int cuadruploI, Cuadruplo cuadruplo) {
         return stringContieneCuadruplo(cuadruplo.getOperando1(), cuadruploI) ||
                 stringContieneCuadruplo(cuadruplo.getOperando2(), cuadruploI);

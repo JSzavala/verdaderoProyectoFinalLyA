@@ -38,4 +38,7 @@ public class FilaTabla {
         };
     }
 
+    public void setCuadruplo(Cuadruplo cuadruplo) {
+        this.cuadruplo = cuadruplo;
+    }
 }

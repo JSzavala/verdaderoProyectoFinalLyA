@@ -22,15 +22,14 @@ public class Main {
         frame.add(form.getMainPanel());
         frame.setVisible(true);
     }
-
     private static void cargarYOptimizarCuadruplos(frmTablaOptimizacion form) {
         Lector lector = new Lector();
         ArrayList<Cuadruplo> cuadruplos= lector.ExtraerCuadruplos("src/recursos/cuadruplos.txt");
-        form.limpiarTabla();
 
+        form.limpiarTabla();
         Optimizador optimizador = new Optimizador(cuadruplos);
         optimizador.Optimizar();
         ArrayList<FilaTabla> cuadruplosOptimizados = optimizador.getCuadruplosOptimizados();
-        form.cargarDatos(cuadruplosOptimizados);
+        form.cargarDatos(lector.ExtraerCuadruplos("src/recursos/cuadruplos.txt"),cuadruplosOptimizados);
     }
 }
