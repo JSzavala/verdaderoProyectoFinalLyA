@@ -46,6 +46,10 @@ public class Cuadruplo {
         remplazadoCon = "";
     }
 
+    public void setNumero(int numero) {
+        this.numero = numero;
+    }
+
     public void setRemplazadoCon(String remplazadoCon) {
         this.remplazadoCon = remplazadoCon;
     }

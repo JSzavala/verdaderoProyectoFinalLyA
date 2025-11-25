@@ -146,10 +146,15 @@ public class frmTablaOptimizacion {
     public void cargarDatos(ArrayList<Cuadruplo> originales, ArrayList<FilaTabla> datos) {
         DefaultTableModel model = (DefaultTableModel) tblCuadruplos.getModel();
         model.setRowCount(0);
+        int cnt=1;
         for(int i=0; i<datos.size(); i++){
             FilaTabla aux = datos.get(i);
+            Cuadruplo c=aux.getCuadruplo();
+            c.setNumero(cnt);
             aux.setCuadruplo(originales.get(i));
+            aux.setResultado(c);
             datos.set(i,aux);
+            if(c.getEsValido())cnt++;
         }
         for (FilaTabla fila : datos) {
             model.addRow(fila.getObjectArray());

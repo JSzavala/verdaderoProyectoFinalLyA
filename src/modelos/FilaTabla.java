@@ -41,4 +41,16 @@ public class FilaTabla {
     public void setCuadruplo(Cuadruplo cuadruplo) {
         this.cuadruplo = cuadruplo;
     }
+
+    public Cuadruplo getCuadruplo() {
+        return cuadruplo;
+    }
+
+    public boolean esValido() {
+        return esValido;
+    }
+
+    public void setResultado(Cuadruplo resultado) {
+        this.resultado = resultado;
+    }
 }
