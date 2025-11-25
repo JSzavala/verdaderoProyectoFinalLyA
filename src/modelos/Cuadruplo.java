@@ -9,6 +9,7 @@ public class Cuadruplo {
     private String operando2;
     private String resultado;
     private String remplazadoCon;
+    private String remplezadoPor;
     private boolean esValido = true;
 
     public Cuadruplo(String operando1, String operador, String operando2, String resultado, int numero) {
@@ -93,10 +94,21 @@ public class Cuadruplo {
         return resultado;
     }
 
+    public String getRemplezadoPor() {
+        return remplezadoPor;
+    }
+
+    public void setRemplezadoPor(String remplezadoPor) {
+        this.remplezadoPor = remplezadoPor;
+    }
+
     @Override
     public String toString() {
         String resultado = numero + " " + "(" + operando1 + ", " + operador + ", " + operando2 + ", " + this.resultado + ")";
-        if (getRemplazadoCon() != null && !getRemplazadoCon().isEmpty()) resultado = getRemplazadoCon() + " -> " + resultado;
+        if (getRemplazadoCon() != null && !getRemplazadoCon().isEmpty())
+            resultado = getRemplazadoCon() + " -> " + resultado;
+        if(getRemplezadoPor() != null && !getRemplezadoPor().isEmpty())
+            resultado += " -> " + getRemplezadoPor();
         return resultado;
     }
 

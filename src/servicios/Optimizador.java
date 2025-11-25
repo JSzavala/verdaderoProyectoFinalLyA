@@ -103,6 +103,10 @@ public class Optimizador {
                 while ((pos = identificarSiguienteCuadruploAfectado(pos, cuadruploi.getNumero())) != -1) {
                     Cuadruplo cuad = optimizados.get(pos);
 
+                    if (cuad.getOperador().equals("=") && cuad.getOperando1().equals(cuadruploi.getOperando1())) {
+                        break;
+                    }
+
                     cuad.setOperando1(cuad.getOperando1().replace(patron, valorAsignado));
                     cuad.setOperando2(cuad.getOperando2().replace(patron, valorAsignado));
 
@@ -158,6 +162,8 @@ public class Optimizador {
         return cambio;
     }
 
+
+    // Simplificacion de expresiones como x + 0 = x, x * 1 = x, etc.
     private boolean aplicarSimplificacionExpresiones() {
         boolean cambio = false;
 
@@ -168,7 +174,8 @@ public class Optimizador {
             String valorAsignado = cuadruploi.getResultado();
 
             if (validador.esAdicionACero(cuadruploi)|| validador.esVecesUno(cuadruploi)) {
-
+                cuadruploi.setRemplazadoCon("Eliminado");
+                cuadruploi.setRemplezadoPor(valorAsignado);
 
                 String patron = "[" + cuadruploi.getNumero() + "]";
                 StringBuilder lineasAfectadasStr = new StringBuilder();
