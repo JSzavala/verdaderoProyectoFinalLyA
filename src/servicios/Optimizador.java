@@ -14,7 +14,8 @@ public class Optimizador {
     public ArrayList<String> optimizaciones;
     public ArrayList<String> lineasAfectadas;
     private Validador validador;
-    boolean primIte=true;
+    boolean primIte = true;
+
     public Optimizador(ArrayList<Cuadruplo> cuadruplos) {
         final int len = cuadruplos.size();
 
@@ -35,11 +36,14 @@ public class Optimizador {
         do {
             cambios = false;
             cambios |= aplicarPropagacionConstantes();
-            //cambios |= aplicarReduccionSubexpresiones();
             cambios |= aplicarSimplificacionExpresiones();
             cambios |= aplicarFolding();
-            primIte=false;
+            //cambios |= aplicarReduccionSubexpresiones();
+            primIte = false;
         } while (cambios); // Repetir hasta que no haya mas cambios
+
+        // Verificación final de código muerto
+        eliminarCodigoMuerto();
 
         /*
         SE: simplificacion de expresiones
@@ -49,6 +53,7 @@ public class Optimizador {
         CM: Codigo Muerto
         */
     }
+
     private boolean aplicarFolding() {
         boolean cambio = false;
 
@@ -57,12 +62,13 @@ public class Optimizador {
 
             if (!cuadruploi.getEsValido()) continue;
 
-            if(validador.esConstante(cuadruploi.getOperando1())&&validador.esConstante(cuadruploi.getOperando2())){
-                String resultado=cuadruploi.getResultado();
+            if (validador.esConstante(cuadruploi.getOperando1()) && validador.esConstante(cuadruploi.getOperando2())) {
+                String resultado = cuadruploi.getResultado();
                 StringBuilder lineasAfectadasStr = new StringBuilder();
 
                 String patron = "[" + cuadruploi.getNumero() + "]";
                 int pos = i + 1;
+
                 while ((pos = identificarSiguienteCuadruploAfectado(pos, cuadruploi.getNumero())) != -1) {
                     Cuadruplo cuad = optimizados.get(pos);
 
@@ -77,12 +83,15 @@ public class Optimizador {
                     pos++; // Buscar desde el siguiente
                     cambio = true;
                 }
+
                 if (lineasAfectadasStr.length() > 0) {
-                    optimizaciones.set(i, "FO"+(primIte?"":"D"));
                     lineasAfectadas.set(i, lineasAfectadasStr.toString());
-                    cuadruploi.setEsValido(false);
-                    cuadruploi.setRemplazadoCon("Eliminado");
                 }
+
+                optimizaciones.set(i, "FO" + (primIte ? "" : "D"));
+                cuadruploi.setEsValido(false);
+                cuadruploi.setRemplazadoCon("Eliminado");
+                cuadruploi.setRemplezadoPor(resultado);
             }
         }
         return cambio;
@@ -123,7 +132,7 @@ public class Optimizador {
                 }
 
                 if (lineasAfectadasStr.length() > 0) {
-                    optimizaciones.set(i, "PC"+(primIte?"":"D"));
+                    optimizaciones.set(i, "PC" + (primIte ? "" : "D"));
                     lineasAfectadas.set(i, lineasAfectadasStr.toString());
                     cuadruploi.setEsValido(false);
                     cuadruploi.setRemplazadoCon("Eliminado");
@@ -148,7 +157,7 @@ public class Optimizador {
                 Cuadruplo cuadj = optimizados.get(j);
 
                 if (validador.sonExpresionesIguales(cuadi, cuadj)) {
-                    optimizaciones.set(j, "RS"+(primIte?"":"D"));
+                    optimizaciones.set(j, "RS" + (primIte ? "" : "D"));
 
                     // Reemplazar con referencia al resultado anterior
                     cuadj.setOperador("");
@@ -177,7 +186,7 @@ public class Optimizador {
             if (!cuadruploi.getEsValido()) continue;
             String valorAsignado = cuadruploi.getResultado();
 
-            if (validador.esAdicionACero(cuadruploi)|| validador.esVecesUno(cuadruploi)) {
+            if (validador.esAdicionACero(cuadruploi) || validador.esVecesUno(cuadruploi)) {
                 cuadruploi.setRemplazadoCon("Eliminado");
                 cuadruploi.setRemplezadoPor(valorAsignado);
 
@@ -193,10 +202,7 @@ public class Optimizador {
 
                     if (lineasAfectadasStr.length() > 0) {
                         lineasAfectadasStr.append(", ");
-                        cuadruploi.setEsValido(false);
-                        cuadruploi.setRemplazadoCon("Eliminado");
                     }
-
                     lineasAfectadasStr.append(cuad.getNumero());
 
                     pos++; // Buscar desde el siguiente
@@ -204,11 +210,13 @@ public class Optimizador {
                 }
 
                 if (lineasAfectadasStr.length() > 0) {
-                    optimizaciones.set(i, "SE"+(primIte?"":"D"));
                     lineasAfectadas.set(i, lineasAfectadasStr.toString());
-                    cuadruploi.setEsValido(false);
-                    cuadruploi.setRemplazadoCon("Eliminado");
                 }
+
+                optimizaciones.set(i, "SE" + (primIte ? "" : "D"));
+                cuadruploi.setEsValido(false);
+                cuadruploi.setRemplazadoCon("Eliminado");
+
 
             }
         }
