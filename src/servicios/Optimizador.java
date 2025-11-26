@@ -39,7 +39,7 @@ public class Optimizador {
             cambios |= aplicarPropagacionConstantes();
             cambios |= aplicarFolding();
             cambios |= aplicarSimplificacionExpresiones();
-            //cambios |= aplicarReduccionSubexpresiones();
+            cambios |= aplicarReduccionSubexpresiones();
         } while (cambios); // Repetir hasta que no haya mas cambios
 
         /*
@@ -58,7 +58,7 @@ public class Optimizador {
             var cuadruploi = optimizados.get(i);
 
             // Es más optimo aplicar simplificacion que folding en estos casos
-            if(validador.esAdicionACero(cuadruploi) || validador.esVecesUno(cuadruploi)) continue;
+            if (validador.esAdicionACero(cuadruploi) || validador.esVecesUno(cuadruploi)) continue;
 
             if (!cuadruploi.getEsValido()) continue;
 
@@ -151,6 +151,8 @@ public class Optimizador {
         for (int i = 0; i < optimizados.size(); i++) {
             Cuadruplo cuadi = optimizados.get(i);
 
+            if(!cuadi.getEsValido()) continue;
+
             if (!validador.esOperacionBinaria(cuadi.getOperador())) {
                 continue;
             }
@@ -165,7 +167,8 @@ public class Optimizador {
                     cuadj.setOperador("");
                     cuadj.setOperando1("");
                     cuadj.setOperando2("");
-                    cuadj.setRemplazadoCon("[" + cuadi.getNumero() + "]");
+                    cuadj.setRemplazadoCon("Eliminado");
+                    cuadj.setRemplezadoPor("[" + cuadi.getNumero() + "]");
 
                     lineasAfectadas.set(j, String.valueOf(cuadi.getNumero()));
                     cambio = true;
