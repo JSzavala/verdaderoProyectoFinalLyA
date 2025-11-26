@@ -17,7 +17,7 @@ public class Main {
 
         frmTablaOptimizacion form = new frmTablaOptimizacion();
         form.getBtnIniciar().addActionListener(e -> cargarYOptimizarCuadruplos(form));
-        SwingUtilities.invokeLater(() -> cargarYOptimizarCuadruplos(form));
+        SwingUtilities.invokeLater(()-> cargarYOptimizarCuadruplos(form));
 
         frame.add(form.getMainPanel());
         frame.setVisible(true);
@@ -25,7 +25,6 @@ public class Main {
     private static void cargarYOptimizarCuadruplos(frmTablaOptimizacion form) {
         Lector lector = new Lector();
         ArrayList<Cuadruplo> cuadruplos= lector.ExtraerCuadruplos("src/recursos/cuadruplos.txt");
-
         form.limpiarTabla();
         Optimizador optimizador = new Optimizador(cuadruplos);
         optimizador.Optimizar();

@@ -80,6 +80,8 @@ public class Optimizador {
                 if (lineasAfectadasStr.length() > 0) {
                     optimizaciones.set(i, "FO"+(primIte?"":"D"));
                     lineasAfectadas.set(i, lineasAfectadasStr.toString());
+                    cuadruploi.setEsValido(false);
+                    cuadruploi.setRemplazadoCon("Eliminado");
                 }
             }
         }
@@ -123,6 +125,8 @@ public class Optimizador {
                 if (lineasAfectadasStr.length() > 0) {
                     optimizaciones.set(i, "PC"+(primIte?"":"D"));
                     lineasAfectadas.set(i, lineasAfectadasStr.toString());
+                    cuadruploi.setEsValido(false);
+                    cuadruploi.setRemplazadoCon("Eliminado");
                 }
 
             }
@@ -189,6 +193,8 @@ public class Optimizador {
 
                     if (lineasAfectadasStr.length() > 0) {
                         lineasAfectadasStr.append(", ");
+                        cuadruploi.setEsValido(false);
+                        cuadruploi.setRemplazadoCon("Eliminado");
                     }
 
                     lineasAfectadasStr.append(cuad.getNumero());
@@ -200,6 +206,8 @@ public class Optimizador {
                 if (lineasAfectadasStr.length() > 0) {
                     optimizaciones.set(i, "SE"+(primIte?"":"D"));
                     lineasAfectadas.set(i, lineasAfectadasStr.toString());
+                    cuadruploi.setEsValido(false);
+                    cuadruploi.setRemplazadoCon("Eliminado");
                 }
 
             }
