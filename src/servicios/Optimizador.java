@@ -14,7 +14,7 @@ public class Optimizador {
     public ArrayList<String> optimizaciones;
     public ArrayList<String> lineasAfectadas;
     private Validador validador;
-    boolean primIte = true;
+    private Set<Integer> indicesOptimizados;
 
     public Optimizador(ArrayList<Cuadruplo> cuadruplos) {
         final int len = cuadruplos.size();
@@ -24,6 +24,7 @@ public class Optimizador {
         this.optimizaciones = new ArrayList<String>(Collections.nCopies(len, ""));
         this.lineasAfectadas = new ArrayList<String>(Collections.nCopies(len, ""));
         validador = new Validador();
+        indicesOptimizados = new HashSet<>();
     }
 
 
@@ -36,14 +37,10 @@ public class Optimizador {
         do {
             cambios = false;
             cambios |= aplicarPropagacionConstantes();
-            cambios |= aplicarSimplificacionExpresiones();
             cambios |= aplicarFolding();
+            cambios |= aplicarSimplificacionExpresiones();
             //cambios |= aplicarReduccionSubexpresiones();
-            primIte = false;
         } while (cambios); // Repetir hasta que no haya mas cambios
-
-        // Verificación final de código muerto
-        eliminarCodigoMuerto();
 
         /*
         SE: simplificacion de expresiones
@@ -59,6 +56,9 @@ public class Optimizador {
 
         for (int i = 0; i < optimizados.size(); i++) {
             var cuadruploi = optimizados.get(i);
+
+            // Es más optimo aplicar simplificacion que folding en estos casos
+            if(validador.esAdicionACero(cuadruploi) || validador.esVecesUno(cuadruploi)) continue;
 
             if (!cuadruploi.getEsValido()) continue;
 
@@ -77,6 +77,7 @@ public class Optimizador {
                     if (lineasAfectadasStr.length() > 0) {
                         lineasAfectadasStr.append(", ");
                     }
+                    indicesOptimizados.add(pos);
 
                     lineasAfectadasStr.append(cuad.getNumero());
 
@@ -88,7 +89,7 @@ public class Optimizador {
                     lineasAfectadas.set(i, lineasAfectadasStr.toString());
                 }
 
-                optimizaciones.set(i, "FO" + (primIte ? "" : "D"));
+                optimizaciones.set(i, "FO" + (indicesOptimizados.contains(i) ? "D" : ""));
                 cuadruploi.setEsValido(false);
                 cuadruploi.setRemplazadoCon("Eliminado");
                 cuadruploi.setRemplezadoPor(resultado);
@@ -120,6 +121,7 @@ public class Optimizador {
 
                     cuad.setOperando1(cuad.getOperando1().replace(patron, valorAsignado));
                     cuad.setOperando2(cuad.getOperando2().replace(patron, valorAsignado));
+                    indicesOptimizados.add(pos);
 
                     if (lineasAfectadasStr.length() > 0) {
                         lineasAfectadasStr.append(", ");
@@ -132,7 +134,7 @@ public class Optimizador {
                 }
 
                 if (lineasAfectadasStr.length() > 0) {
-                    optimizaciones.set(i, "PC" + (primIte ? "" : "D"));
+                    optimizaciones.set(i, "PC" + (indicesOptimizados.contains(i) ? "D" : ""));
                     lineasAfectadas.set(i, lineasAfectadasStr.toString());
                     cuadruploi.setEsValido(false);
                     cuadruploi.setRemplazadoCon("Eliminado");
@@ -157,7 +159,7 @@ public class Optimizador {
                 Cuadruplo cuadj = optimizados.get(j);
 
                 if (validador.sonExpresionesIguales(cuadi, cuadj)) {
-                    optimizaciones.set(j, "RS" + (primIte ? "" : "D"));
+                    optimizaciones.set(j, "RS" + (indicesOptimizados.contains(i) ? "D" : ""));
 
                     // Reemplazar con referencia al resultado anterior
                     cuadj.setOperador("");
@@ -199,6 +201,7 @@ public class Optimizador {
 
                     cuad.setOperando1(cuad.getOperando1().replace(patron, valorAsignado));
                     cuad.setOperando2(cuad.getOperando2().replace(patron, valorAsignado));
+                    indicesOptimizados.add(pos);
 
                     if (lineasAfectadasStr.length() > 0) {
                         lineasAfectadasStr.append(", ");
@@ -213,7 +216,7 @@ public class Optimizador {
                     lineasAfectadas.set(i, lineasAfectadasStr.toString());
                 }
 
-                optimizaciones.set(i, "SE" + (primIte ? "" : "D"));
+                optimizaciones.set(i, "SE" + (indicesOptimizados.contains(i) ? "D" : ""));
                 cuadruploi.setEsValido(false);
                 cuadruploi.setRemplazadoCon("Eliminado");
 
