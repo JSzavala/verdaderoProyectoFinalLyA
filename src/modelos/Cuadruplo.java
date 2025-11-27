@@ -2,7 +2,7 @@ package modelos;
 
 import java.util.ArrayList;
 
-public class Cuadruplo {
+public class Cuadruplo implements  Cloneable{
     private int numero;
     private String operador;
     private String operando1;
@@ -44,6 +44,10 @@ public class Cuadruplo {
         this.operando2 = partes[2].trim();
         this.resultado = partes[3].trim();
         remplazadoCon = "";
+    }
+
+    public void setResultado(String resultado) {
+        this.resultado = resultado;
     }
 
     public void setNumero(int numero) {
@@ -116,6 +120,10 @@ public class Cuadruplo {
         return resultado;
     }
 
+    public String toShortString() {
+        return numero + ". (" + operando1 + ", " + operador + ", " + operando2 + ", " + this.resultado + ")";
+    }
+
     public ArrayList<String> toArrayList() {
         ArrayList<String> list = new ArrayList<>();
         list.add(operando1);
@@ -125,5 +133,14 @@ public class Cuadruplo {
         return list;
     }
 
+    @Override
+    public Cuadruplo clone() {
+        try {
+            return (Cuadruplo) super.clone();
+        } catch (CloneNotSupportedException e) {
+            System.out.println("Error inesperado");
+            return null;
+        }
+    }
 
 }

@@ -20,7 +20,9 @@ public class Optimizador {
         final int len = cuadruplos.size();
 
         this.cuadruplos = cuadruplos;
-        this.optimizados = new ArrayList<>(cuadruplos);
+        this.optimizados = cuadruplos.stream()
+                .map(Cuadruplo::clone)
+                .collect(Collectors.toCollection(ArrayList::new)); // Se clonan los cuadruplos para no modificar los originales
         this.optimizaciones = new ArrayList<String>(Collections.nCopies(len, ""));
         this.lineasAfectadas = new ArrayList<String>(Collections.nCopies(len, ""));
         validador = new Validador();

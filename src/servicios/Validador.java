@@ -2,8 +2,8 @@ package servicios;
 
 import modelos.Cuadruplo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
 
 public class Validador {
 
@@ -106,4 +106,81 @@ public class Validador {
         variables.add(operando);
     }
 
+    public List<String> validarFormatoLineas(List<String> lineas) {
+        List<String> errores = new ArrayList<>();
+
+        String regex = "^(\\d+)\\.?\\s*\\(([^,]+),\\s*([^,]+),\\s*([^,]+),\\s*([^)]+)\\)$";
+
+        for (int i = 0; i < lineas.size(); i++) {
+            String linea = lineas.get(i).trim();
+            if (linea.isEmpty()) continue;
+
+            if (!linea.matches(regex)) {
+                // Mensaje de error más descriptivo
+                errores.add("Error de Sintaxis en línea " + (i + 1) + ": \"" + linea +
+                        "\" -> Revise formato 'N. (Op1, Op, Op2, Res)' o comas internas prohibidas.");
+            }
+        }
+        return errores;
+    }
+
+
+    public List<String> validarIntegridadReferencial(List<Cuadruplo> cuadruplos) {
+        List<String> errores = new ArrayList<>();
+        Set<Integer> idsExistentes = new HashSet<>();
+
+        // Verificar una numeración única de cuádruplos
+        for (Cuadruplo c : cuadruplos) {
+            if (idsExistentes.contains(c.getNumero())) {
+                errores.add("Error Semántico: El ID de cuádruplo " + c.getNumero() + " está duplicado.");
+            }
+            idsExistentes.add(c.getNumero());
+        }
+
+        // Paso 2: Verificar referencias [n]
+        for (Cuadruplo c : cuadruplos) {
+            verificarReferencia(c.getOperando1(), c.getNumero(), idsExistentes, errores);
+            verificarReferencia(c.getOperando2(), c.getNumero(), idsExistentes, errores);
+        }
+
+        return errores;
+    }
+
+    private void verificarReferencia(String operando, int idActual, Set<Integer> ids, List<String> errores) {
+        if (operando != null && operando.startsWith("[") && operando.endsWith("]")) {
+            try {
+                String numStr = operando.substring(1, operando.length() - 1);
+                int refId = Integer.parseInt(numStr);
+
+                // Referencia a ID inexistente
+                if (!ids.contains(refId)) {
+                    errores.add("Error de Referencia en Cuádruplo " + idActual +
+                            ": El operando '" + operando + "' apunta a un ID inexistente.");
+                }
+
+                // Referencias adelantadas o ciclos
+                if (refId >= idActual) {
+                    errores.add("Error de Flujo en Cuádruplo " + idActual +
+                            ": Referencia '" + operando + "' apunta al futuro o a sí misma (Ciclo).");
+                }
+
+            } catch (NumberFormatException e) {
+                errores.add("Error de Formato en Cuádruplo " + idActual + ": Referencia inválida " + operando);
+            }
+        }
+    }
+
+
+    public String actualizarReferencia(String valor, Map<Integer, Integer> mapa) {
+        if (valor == null) return null;
+
+        if (valor.matches("\\[\\d+\\]")) {
+            int idViejo = Integer.parseInt(valor.substring(1, valor.length() - 1));
+
+            if (mapa.containsKey(idViejo)) {
+                return "[" + mapa.get(idViejo) + "]";
+            }
+        }
+        return valor;
+    }
 }

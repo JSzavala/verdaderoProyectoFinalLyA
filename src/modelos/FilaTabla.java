@@ -38,6 +38,11 @@ public class FilaTabla {
         };
     }
 
+
+    public Cuadruplo getResultado() {
+        return resultado;
+    }
+
     public void setCuadruplo(Cuadruplo cuadruplo) {
         this.cuadruplo = cuadruplo;
     }

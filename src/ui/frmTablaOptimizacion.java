@@ -2,6 +2,7 @@ package ui;
 
 import modelos.Cuadruplo;
 import modelos.FilaTabla;
+import servicios.Validador;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -9,6 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class frmTablaOptimizacion {
     private JTable tblCuadruplos;
@@ -143,19 +145,33 @@ public class frmTablaOptimizacion {
         model.setRowCount(0);
     }
 
-    public void cargarDatos(ArrayList<Cuadruplo> originales, ArrayList<FilaTabla> datos) {
+    public void cargarDatos(ArrayList<FilaTabla> datos) {
         DefaultTableModel model = (DefaultTableModel) tblCuadruplos.getModel();
         model.setRowCount(0);
-        int cnt=1;
-        for(int i=0; i<datos.size(); i++){
-            FilaTabla aux = datos.get(i);
-            Cuadruplo c=aux.getCuadruplo();
-            c.setNumero(cnt);
-            aux.setCuadruplo(originales.get(i));
-            aux.setResultado(c);
-            datos.set(i,aux);
-            if(c.getEsValido())cnt++;
+
+        Map<Integer, Integer> mapaCambios = new java.util.HashMap<>();
+        int cnt = 1;
+        for (FilaTabla fila : datos) {
+            Cuadruplo res = fila.getResultado();
+
+            if (res.getEsValido()) {
+                int idViejo = res.getNumero();
+                mapaCambios.put(idViejo, cnt);
+                res.setNumero(cnt);
+                cnt++;
+            }
         }
+
+        Validador validador = new Validador();
+        for (FilaTabla fila : datos) {
+            Cuadruplo res = fila.getResultado();
+            if (res.getEsValido()) {
+                res.setOperando1(validador.actualizarReferencia(res.getOperando1(), mapaCambios));
+                res.setOperando2(validador.actualizarReferencia(res.getOperando2(), mapaCambios));
+                res.setResultado(validador.actualizarReferencia(res.getResultado(), mapaCambios));
+            }
+        }
+
         for (FilaTabla fila : datos) {
             model.addRow(fila.getObjectArray());
         }
