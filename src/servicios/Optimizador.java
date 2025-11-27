@@ -161,18 +161,21 @@ public class Optimizador {
 
             for (int j = i + 1; j < optimizados.size(); j++) {
                 Cuadruplo cuadj = optimizados.get(j);
+                if(!cuadj.getEsValido()) continue;
 
                 if (validador.sonExpresionesIguales(cuadi, cuadj)) {
+                    String referenciaVieja = "[" + cuadj.getNumero() + "]";
+                    String referenciaNueva = "[" + cuadi.getNumero() + "]";
+
                     optimizaciones.set(j, "RS" + (indicesOptimizados.contains(i) ? "D" : ""));
 
                     // Reemplazar con referencia al resultado anterior
-                    cuadj.setOperador("");
-                    cuadj.setOperando1("");
-                    cuadj.setOperando2("");
                     cuadj.setRemplazadoCon("Eliminado");
-                    cuadj.setRemplezadoPor("[" + cuadi.getNumero() + "]");
+                    cuadj.setEsValido(false);
+                    cuadj.setRemplezadoPor(referenciaNueva);
 
                     lineasAfectadas.set(j, String.valueOf(cuadi.getNumero()));
+                    actualizarReferenciasFuturas(j + 1, referenciaVieja, referenciaNueva);
                     cambio = true;
                 }
             }
@@ -309,6 +312,16 @@ public class Optimizador {
             }
         }
         return -1;
+    }
+
+    private void actualizarReferenciasFuturas(int inicio, String vieja, String nueva) {
+        for (int i = inicio; i < optimizados.size(); i++) {
+            Cuadruplo c = optimizados.get(i);
+            if (c.getEsValido()) {
+                c.setOperando1(c.getOperando1().replace(vieja, nueva));
+                c.setOperando2(c.getOperando2().replace(vieja, nueva));
+            }
+        }
     }
 
     public ArrayList<FilaTabla> getCuadruplosOptimizados() {
