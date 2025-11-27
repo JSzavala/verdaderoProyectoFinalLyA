@@ -100,13 +100,16 @@ public class Optimizador {
         return cambio;
     }
 
-    private boolean aplicarPropagacionConstantes() {
+    private boolean aplicarPropagacionConstantes(){
         boolean cambio = false;
 
         for (int i = 0; i < optimizados.size(); i++) {
             var cuadruploi = optimizados.get(i);
 
             if (!cuadruploi.getEsValido()) continue;
+            if(validador.seRepiteId(cuadruploi.getOperando1(),cuadruplos)){
+                continue;
+            }
             String valorAsignado = cuadruploi.getOperando2();
 
             if (cuadruploi.getOperador().equals("=") && validador.esConstante(valorAsignado)) {
@@ -173,7 +176,7 @@ public class Optimizador {
                     cuadj.setRemplazadoCon("Eliminado");
                     cuadj.setEsValido(false);
                     cuadj.setRemplezadoPor(referenciaNueva);
-
+                    //indicesOptimizados.add(cuadi.getNumero());
                     lineasAfectadas.set(j, String.valueOf(cuadi.getNumero()));
                     actualizarReferenciasFuturas(j + 1, referenciaVieja, referenciaNueva);
                     cambio = true;

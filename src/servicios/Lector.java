@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Lector {
-    public ArrayList<Cuadruplo> ExtraerCuadruplos(String path) {
+    public ArrayList<Cuadruplo> ExtraerCuadruplos(String path){
         ArrayList<Cuadruplo> listaCuadruplos = new ArrayList<>();
         Validador validador = new Validador();
 

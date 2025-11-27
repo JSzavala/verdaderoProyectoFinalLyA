@@ -11,6 +11,7 @@ public class Cuadruplo implements  Cloneable{
     private String remplazadoCon;
     private String remplezadoPor;
     private boolean esValido = true;
+    private boolean alterado = false;
 
     public Cuadruplo(String operando1, String operador, String operando2, String resultado, int numero) {
         this.operador = operador;
@@ -21,23 +22,30 @@ public class Cuadruplo implements  Cloneable{
         remplazadoCon = "";
     }
 
-    public Cuadruplo(String cuadruploStr) {
+    public Cuadruplo(String cuadruploStr){
         cuadruploStr = cuadruploStr.trim();
 
         int parentesisIndex = cuadruploStr.indexOf('(');
 
-        if (parentesisIndex == -1 || !cuadruploStr.endsWith(")")) {
-            throw new IllegalArgumentException("Formato inválido. Se esperaba: numero(op1,operador,op2,resultado)");
+        String[] partes;
+        try{
+            if (parentesisIndex == -1 || !cuadruploStr.endsWith(")")) {
+                throw new IllegalArgumentException("Formato inválido. Se esperaba: numero(op1,operador,op2,resultado)");
+            }
+
+            this.numero = Integer.parseInt(cuadruploStr.substring(0, parentesisIndex).trim());
+
+            String contenido = cuadruploStr.substring(parentesisIndex + 1, cuadruploStr.length() - 1);
+            partes = contenido.split(",");
+            if (partes.length != 4) {
+                throw new IllegalArgumentException("Se esperaban 4 elementos, se encontraron: " + partes.length);
+            }
+        } catch (IllegalArgumentException e) {
+            //throw new RuntimeException(e);
+            System.err.println(e.getMessage());
+            return;
         }
 
-        this.numero = Integer.parseInt(cuadruploStr.substring(0, parentesisIndex).trim());
-
-        String contenido = cuadruploStr.substring(parentesisIndex + 1, cuadruploStr.length() - 1);
-        String[] partes = contenido.split(",");
-
-        if (partes.length != 4) {
-            throw new IllegalArgumentException("Se esperaban 4 elementos, se encontraron: " + partes.length);
-        }
 
         this.operando1 = partes[0].trim();
         this.operador = partes[1].trim();
@@ -108,6 +116,14 @@ public class Cuadruplo implements  Cloneable{
 
     public void setRemplezadoPor(String remplezadoPor) {
         this.remplezadoPor = remplezadoPor;
+    }
+
+    public boolean isAlterado() {
+        return alterado;
+    }
+
+    public void setAlterado(boolean alterado) {
+        this.alterado = alterado;
     }
 
     @Override

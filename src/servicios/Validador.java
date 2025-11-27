@@ -7,8 +7,16 @@ import java.util.regex.Pattern;
 
 public class Validador {
 
+    public boolean seRepiteId(String id,ArrayList<Cuadruplo> cuadruplos){
+        int cnt =0;
+        for(Cuadruplo c: cuadruplos){
+            if(c.getOperando1().matches(id))cnt++;
+            if(cnt>1)return true;
+        }
+        return false;
+    }
     public boolean esConstante(String valor) {
-        boolean esNumero = valor.matches("\\d+(\\.\\d+)?");
+        boolean esNumero = valor.matches("\\d+(\\.\\d+)?f?");
         boolean esCadena = valor.matches("\".*\"");
         boolean esCaracter = valor.matches("'.'");
 
@@ -35,7 +43,8 @@ public class Validador {
     public boolean esOperacionBinaria(String operador) {
         return operador.equals("+") || operador.equals("-")
                 || operador.equals("*") || operador.equals("/")
-                || operador.equals("%") || operador.equals("^");
+                || operador.equals("%") || operador.equals("^")
+                || operador.equals("=") || operador.equals(".");
     }
 
     public boolean esOperacionCritica(String operador) {
