@@ -170,15 +170,16 @@ public class Optimizador {
                     String referenciaVieja = "[" + cuadj.getNumero() + "]";
                     String referenciaNueva = "[" + cuadi.getNumero() + "]";
 
-                    optimizaciones.set(j, "RS" + (indicesOptimizados.contains(i) ? "D" : ""));
+                    optimizaciones.set(j, "RS" + (indicesOptimizados.contains(j) ? "D" : ""));
 
                     // Reemplazar con referencia al resultado anterior
                     cuadj.setRemplazadoCon("Eliminado");
                     cuadj.setEsValido(false);
                     cuadj.setRemplezadoPor(referenciaNueva);
-                    //indicesOptimizados.add(cuadi.getNumero());
-                    lineasAfectadas.set(j, String.valueOf(cuadi.getNumero()));
-                    actualizarReferenciasFuturas(j + 1, referenciaVieja, referenciaNueva);
+
+                    String lineasFuturas = actualizarReferenciasFuturas(j + 1, referenciaVieja, referenciaNueva);
+                    lineasAfectadas.set(j, lineasFuturas);
+
                     cambio = true;
                 }
             }
@@ -317,14 +318,36 @@ public class Optimizador {
         return -1;
     }
 
-    private void actualizarReferenciasFuturas(int inicio, String vieja, String nueva) {
+    private String actualizarReferenciasFuturas(int inicio, String vieja, String nueva) {
+        StringBuilder afectados = new StringBuilder();
+
         for (int i = inicio; i < optimizados.size(); i++) {
             Cuadruplo c = optimizados.get(i);
+
             if (c.getEsValido()) {
-                c.setOperando1(c.getOperando1().replace(vieja, nueva));
-                c.setOperando2(c.getOperando2().replace(vieja, nueva));
+                boolean huboCambio = false;
+
+                if (c.getOperando1().contains(vieja)) {
+                    c.setOperando1(c.getOperando1().replace(vieja, nueva));
+                    huboCambio = true;
+                }
+
+                if (c.getOperando2().contains(vieja)) {
+                    c.setOperando2(c.getOperando2().replace(vieja, nueva));
+                    huboCambio = true;
+                }
+
+                if (huboCambio) {
+                    if (afectados.length() > 0) {
+                        afectados.append(", ");
+                    }
+                    afectados.append(c.getNumero());
+                    indicesOptimizados.add(i);
+                }
             }
         }
+
+        return  afectados.toString();
     }
 
     public ArrayList<FilaTabla> getCuadruplosOptimizados() {
