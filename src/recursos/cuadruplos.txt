@@ -1,5 +1,5 @@
-1 (ID3, =, new scanner, scanner)
-2 (ID3, =, new scanner, scanner)
+1 (ID3, =, scanner, scanner)
+2 (ID3, =, scanner, scanner)
 3 ([1], ., nextLine, x)
 4 ([2], ., nextLine, x)
 5 ([3], ., length(), y)
@@ -19,4 +19,3 @@
 19 (ID4, RTN, [18], 6y+2)
 20 (ID2, ., [19], 6y+2)
 21 (ID1PMAIN, SOUT, [20], 6y+2)
-
